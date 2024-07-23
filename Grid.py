@@ -4,6 +4,8 @@ from context_tools import mapped_svg_context
 
 
 class Grid:
+    robot_size = .15
+
     def __init__(self,resolution,occupancy_array):
         self.resolution = resolution
         self.occupancy_array = occupancy_array
@@ -71,7 +73,7 @@ class Grid:
     def add_robot(self,position_xy,context):
        context.set_line_width(4)
        context.set_source_rgba(0, 0, 255, 1)
-       context.arc(position_xy[0],position_xy[1],(.25),0,2*math.pi)
+       context.arc(position_xy[0],position_xy[1],(self.robot_size),0,2*math.pi)
        context.fill()
        context.stroke_preserve()
 
@@ -160,7 +162,7 @@ class Grid:
 
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
-        point_amount = int(distance/0.05)
+        point_amount = int(distance/0.5)
         print(point_amount," files about to be created")
         list_x = np.linspace(from_x,to_x,point_amount)
         list_y = np.linspace(from_y,to_y,point_amount)

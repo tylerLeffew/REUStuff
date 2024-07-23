@@ -7,15 +7,28 @@ import random
 import clip
 import cv2
 
-
+# find method to scale image cv2.resize
 user_aabb = ((0,0),(10,10))
 svg_size =  (1000,1000)
-resolution = .05
+resolution = 5
+
+def load_to_all_binary(array):
+      shape = array.shape
+      for i in range(shape[0]):
+            for j in range(shape[1]):
+                  if array[i,j] >0.07: array[i,j] = 1      
+
+def outline_of_ones(array):
+      shape = array.shape
+      for i in range(shape[0]):
+            for j in range(shape[1]):
+                  if i == 0 or j == 0 or i == shape[0]-1 or j == shape[1]-1:
+                        array[i,j] = 1
 
 
 def points_along_line(from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
-        point_amount = int(distance/0.05)
+        point_amount = int(distance/0.5)
         list_x = np.linspace(from_x,to_x,point_amount)
         list_y = np.linspace(from_y,to_y,point_amount)
         list_out = list(zip(list_x,list_y))
@@ -34,7 +47,7 @@ def add_robot(array,context):
     #    array[0] = array[0]*50
     #    array[1] = 1000 - (array[1]*50)
        context.set_source_rgba(0, 0, 255, 1)
-       context.arc(array[0],array[1],(.25),0,2*math.pi)
+       context.arc(array[0],array[1],(.15),0,2*math.pi)
        context.fill()
        context.stroke_preserve()
 
@@ -150,27 +163,33 @@ def main(): #with resolution 2, 11 squares can fit across
         # print(test_grid2.overlaps(test_grid3))
 
 
-        image = cv2.imread('all_black_environment.png',0)
+        image = cv2.imread('all_black_environment_resized.png',0)
         print("'image' data type: ",image.dtype)
         image = image/255
         print(image)
         image = image.astype(np.float32)
 
         print(image.dtype)
-        image_grid = Grid(0.01,image)
+        # outline_of_ones(image)
+        load_to_all_binary(image)
+        image_grid = Grid(0.035,image)
+        print("claculated aabb = ", image_grid.calc_aabb())
+
 
         list_of_grid_objects = image_grid.get_movement_shadows((0.5,0.5),(9,0.5))
         list_of_robot_locations = points_along_line(0.5,9,0.5,0.5)
         list_of_shadowlists = []
         count = 1
         for grid in list_of_grid_objects:
+              grid.occupancy_array = grid.occupancy_array - image_grid.occupancy_array
               list_out = grid.compute_separate_shadows()
               list_of_shadowlists.append(list_out)
         pathname = "test_with_shape"
         for i in range(len(list_of_shadowlists)):
             file_name = f"{pathname}{i+1:04d}.png"
-            with mapped_png_context(file_name,user_aabb,svg_size) as context:
+            with mapped_png_context(file_name,image_grid.calc_aabb(),svg_size) as context:
                   current_list = list_of_shadowlists[i]
+                  print("amount of shadows in current list: ", len(current_list))
                   color = 1
                   for shadow in current_list:
                         context.set_source_rgb(0.749,0,1)
@@ -182,10 +201,12 @@ def main(): #with resolution 2, 11 squares can fit across
 
 
         
-    
-        # with mapped_png_context("image_test.png",user_aabb,svg_size) as context:
+        # with mapped_png_context("image_test.png",image_grid.calc_aabb(),svg_size) as context:
         #     image_grid.draw(context)
-        #     image_grid.add_robot((5,.5),context)
+        #     image_grid.add_robot((9,9),context)
+        #     image_grid.add_robot((10.5,0),context)
+        #     image_grid.add_robot((0,9.1),context)
+        #     image_grid.add_robot((0,0),context)
         # print(image_grid.occupancy_array.shape)
         # print(test_grid1.occupancy_array.shape)
                
@@ -237,9 +258,9 @@ def main(): #with resolution 2, 11 squares can fit across
         #           grid1.draw(context)
 
 
-        # x = clip.image_glob('*.png', frame_rate=30)
-        # x = clip.background(x,(255,255,255))
-        # clip.save_mp4(x,"test.mp4",30)
+        x = clip.image_glob('*.png', frame_rate=30)
+        x = clip.background(x,(255,255,255))
+        clip.save_mp4(x,"test_with_shape2.mp4",30)
 
 
 
