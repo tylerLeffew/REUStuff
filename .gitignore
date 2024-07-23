@@ -1,0 +1,6 @@
+.DS_Store
+REUpython.code-workspace
+all_black_environment.png all_black_environment_resized.png image_test.png test_with_shape0001.png test_with_shape0002.png test_with_shape0003.png test_with_shape0004.png test_with_shape0005.png test_with_shape0006.png test_with_shape0007.png test_with_shape0008.png test_with_shape0009.png test_with_shape0010.png test_with_shape0011.png test_with_shape0012.png test_with_shape0013.png test_with_shape0014.png test_with_shape0015.png test_with_shape0016.png test_with_shape0017.png
+*.png
+__pycache__
+*.mp4
