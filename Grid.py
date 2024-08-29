@@ -193,8 +193,6 @@ class Grid:
             list_of_grids_out.append(temp_grid_object)
         return list_of_grids_out
     
-    def get_array_from_grid_object(self):
-        return self.occupancy_array
     
     def overlaps(self,comparison_grid):
         shape = self.occupancy_array.shape
