@@ -3,7 +3,7 @@ from context_tools import *
 import cairo, clip, cv2, random
 import numpy as np
 
-# This is the test driver for the Grid object class
+# This is the example driver for the Grid object class
 
 # There will be multiple methods to demo individual parts of the Grid object class
 
@@ -15,7 +15,7 @@ big_array[int(.3*nx):int(.3*nx)+wx,int(.1*ny):int(.1*ny)+wy] = 1
 big_array[int(.1*nx):int(.1*nx)+wx,int(.5*ny):int(.5*ny)+wy] = 1 
 big_array[int(.6*nx):int(.6*nx)+wx,int(.6*ny):int(.6*ny)+wy] = 1
 
-# big_grid = Grid(.05,big_array) # This is the main Grid object that is demonstrated by the methods in this file
+# ^^This is the main array that will serve as the object environment
 
 def add_robot(position, context):
        context.set_source_rgb(0, 0, 1)
@@ -23,14 +23,14 @@ def add_robot(position, context):
        context.fill()
 
 def represent_simple_environment():
-       with mapped_png_context("simple_environment.png",((0,0),(10,10)),(1000,1000)) as context:
+       with mapped_png_context("Images/simple_environment.png",((0,0),(10,10)),(1000,1000)) as context:
               RSE_Grid = Grid(.05,big_array)
               context.set_source_rgb(0,0,0)
               RSE_Grid.draw(context)
               add_robot((5,5),context)
 
 def draw_shadows_on_simple_env():
-       with mapped_png_context("simple_shadow_environment.png",((0,0),(10,10)),(1000,1000)) as context:
+       with mapped_png_context("Images/simple_shadow_environment.png",((0,0),(10,10)),(1000,1000)) as context:
               SRSE_Grid = Grid(.05,big_array)
               Shadows = SRSE_Grid.get_all_shadows((5,5))
               context.set_source_rgb(1,0,0)
@@ -40,7 +40,7 @@ def draw_shadows_on_simple_env():
               add_robot((5,5),context)
 
 def separate_discrete_shadows():
-       with mapped_png_context("discrete_shadows.png",((0,0),(10,10)),(1000,1000)) as context:
+       with mapped_png_context("Images/discrete_shadows.png",((0,0),(10,10)),(1000,1000)) as context:
               SRSE_Grid = Grid(.05,big_array)
               Shadows = SRSE_Grid.get_all_shadows((5,5))
               Shadows.occupancy_array = Shadows.occupancy_array - SRSE_Grid.occupancy_array
@@ -54,18 +54,15 @@ def separate_discrete_shadows():
 
 def moving_shadows_discrete(): #### Work in progress
        ENV_Grid = Grid(.05,big_array)
-       Shadows = ENV_Grid.get_all_shadows((5,5))
-       with mapped_png_context("discrete_shadows.png",((0,0),(10,10)),(1000,1000)) as context:
-              Shadows.occupancy_array = Shadows.occupancy_array - SRSE_Grid.occupancy_array
-              list_of_shadows = Shadows.compute_separate_shadows()
-              for shadow in list_of_shadows:
-                     context.set_source_rgb(random.random(),random.random(),.1)
-                     shadow.draw(context)
-              context.set_source_rgb(0,0,0)
-              SRSE_Grid.draw(context)
-              add_robot((5,5),context)
+       first_path = ((5,4),(1,9))
+       secondpath = ((1,9),(8,9))
+       file_name = f"{"Images/Video/VideoFrames/discrete_shadows"}{i+1:04d}.png"
+       for i in range (3):
+              list_of_grid_objects = ENV_Grid.get_movement_shadows()
+              with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
+                     pass
 
               
 def main():
-       separate_discrete_shadows()
+       represent_simple_environment()
 main()
