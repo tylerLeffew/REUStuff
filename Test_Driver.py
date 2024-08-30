@@ -1,6 +1,6 @@
 from Grid import Grid
 from context_tools import *
-import cairo, clip, cv2, random
+import cairo, clip, cv2, random, os
 import numpy as np
 
 # This is the example driver for the Grid object class
@@ -52,17 +52,24 @@ def separate_discrete_shadows():
               SRSE_Grid.draw(context)
               add_robot((5,5),context)
 
-def moving_shadows_discrete(): #### Work in progress
-       ENV_Grid = Grid(.05,big_array)
-       first_path = ((5,4),(1,9))
-       secondpath = ((1,9),(8,9))
-       file_name = f"{"Images/Video/VideoFrames/discrete_shadows"}{i+1:04d}.png"
-       for i in range (3):
-              list_of_grid_objects = ENV_Grid.get_movement_shadows()
-              with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
-                     pass
+# def moving_shadows_discrete(): #### Work in progress
+#        ENV_Grid = Grid(.05,big_array)
+#        first_path = ((5,4),(1,9))
+#        secondpath = ((1,9),(8,9))
+#        file_name = f"{"Images/Video/VideoFrames/discrete_shadows"}{i+1:04d}.png"
+#        for i in range (3):
+#               list_of_grid_objects = ENV_Grid.get_movement_shadows()
+#               with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
+#                      pass
 
+def make_folder_stack():
+       path = './Images/Video/VideoFrames'
+       if not os.path.exists(path):
+              print("\nCreating folder directory for images\n")
+              os.makedirs(path)
+       else:
+              print("\nFolder directory for images already exists\n")
               
 def main():
-       represent_simple_environment()
+       make_folder_stack()
 main()
