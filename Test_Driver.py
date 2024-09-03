@@ -52,15 +52,17 @@ def separate_discrete_shadows():
               SRSE_Grid.draw(context)
               add_robot((5,5),context)
 
-# def moving_shadows_discrete(): #### Work in progress
-#        ENV_Grid = Grid(.05,big_array)
-#        first_path = ((5,4),(1,9))
-#        secondpath = ((1,9),(8,9))
-#        file_name = f"{"Images/Video/VideoFrames/discrete_shadows"}{i+1:04d}.png"
-#        for i in range (3):
-#               list_of_grid_objects = ENV_Grid.get_movement_shadows()
-#               with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
-#                      pass
+def moving_shadows_discrete(): #### Work in progress
+       ENV_Grid = Grid(.05,big_array)
+       first_path = ((5,4),(1,9))
+       second_path = ((1,9),(8,9))
+       list_of_paths = [first_path,second_path]
+       name = "Images/Video/VideoFrames/discrete_shadows"
+       for i in range (len(list_of_paths)):
+              file_name = f"{name}{i+1:04d}.png"
+              list_of_grid_objects = ENV_Grid.get_movement_shadows(first_path[0],first_path[1])
+              with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
+                     print(file_name)
 
 def make_folder_stack():
        path = './Images/Video/VideoFrames'
@@ -72,4 +74,5 @@ def make_folder_stack():
               
 def main():
        make_folder_stack()
+       moving_shadows_discrete()
 main()
