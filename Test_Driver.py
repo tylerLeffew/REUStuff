@@ -59,10 +59,15 @@ def moving_shadows_discrete(): #### Work in progress
        list_of_paths = [first_path,second_path]
        name = "Images/Video/VideoFrames/discrete_shadows"
        for i in range (len(list_of_paths)):
-              file_name = f"{name}{i+1:04d}.png"
+              list_of_shadowlists = []
               list_of_grid_objects = ENV_Grid.get_movement_shadows(first_path[0],first_path[1])
-              with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
-                     print(file_name)
+              for grid in list_of_grid_objects:
+                     grid.occupancy_array = grid.occupancy_array - ENV_Grid.occupancy_array
+                     shadow_list = grid.compute_separate_shadows()
+                     list_of_shadowlists.append(shadow_list)
+                     file_name = f"{name + i}{i+1:04d}.png"
+                     with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
+                            print(file_name)
 
 def make_folder_stack():
        path = './Images/Video/VideoFrames'
