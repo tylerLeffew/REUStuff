@@ -62,21 +62,27 @@ def moving_shadows_discrete(): #### Work in progress
               current_path = list_of_paths[i]
               list_of_shadowlists = []
               list_of_grid_objects = ENV_Grid.get_movement_shadows(current_path[0],current_path[1])
-              print("current path = "+ )
+              print("current path = "+ str(current_path[0]) + " to " + str(current_path[1]))
               for grid in list_of_grid_objects:
                      grid.occupancy_array = grid.occupancy_array - ENV_Grid.occupancy_array
                      shadow_list = grid.compute_separate_shadows()
                      list_of_shadowlists.append(shadow_list)
               for j in range(len(list_of_shadowlists)):       
                      file_name = f"{name + str(i)}{j+1:04d}.png"
+                     current_shadowlist = list_of_shadowlists[j]
                      with mapped_png_context(file_name,((0,0),(10,10)),(1000,1000)) as context:
-                            current_shadowlist = list_of_shadowlists[i]
-                            print(file_name + "being created")
+                            print(file_name + " being created")
                             for shadow in current_shadowlist:
                                    context.set_source_rgb(random.random(),random.random(),random.random())
                                    shadow.draw(context)
+                            context.set_source_rgb(0,0,0)
                             ENV_Grid.draw(context)
 
+def compile_video():
+       print("\nAttempting to compile video\n")
+       vid = clip.image_glob('Images/Video/VideoFrames/*.png', frame_rate=30)
+       vid = clip.background(vid,(255,255,255))
+       clip.save_mp4(vid,"Images/Video/test_video.mp4",30)
 
 def make_folder_stack():
        path = './Images/Video/VideoFrames'
@@ -88,5 +94,6 @@ def make_folder_stack():
               
 def main():
        make_folder_stack()
-       moving_shadows_discrete()
+       # moving_shadows_discrete()
+       compile_video()
 main()

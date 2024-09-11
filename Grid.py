@@ -1,5 +1,5 @@
 import numpy as np
-import math
+import math, random
 from context_tools import mapped_svg_context
 
 
@@ -162,11 +162,12 @@ class Grid:
 
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
-        point_amount = int(distance/0.5)
+        point_amount = int(distance/.2)
         print(point_amount," files about to be created")
         list_x = np.linspace(from_x,to_x,point_amount)
         list_y = np.linspace(from_y,to_y,point_amount)
         list_out = list(zip(list_x,list_y))
+        print("calculated points = "+str(list_out))
         return list_out
     
     def switch_points(self):
@@ -188,6 +189,7 @@ class Grid:
         list_of_points = self.points_along_line(from_point[0],to_point[0],from_point[1],to_point[1])
         list_of_grids_out = []
         for i in range(len(list_of_points)):
+            print("Using point "+ str(list_of_points[i]) + " to calculate temp grid obj in get_movement_shadows")
             temp_grid_object = self.get_all_shadows(list_of_points[i])
             print("movement shadows of grid",i+1," calculated.")
             list_of_grids_out.append(temp_grid_object)
