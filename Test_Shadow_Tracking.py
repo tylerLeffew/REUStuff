@@ -31,8 +31,9 @@ def generate_keyframe_grid():
                     shadow.draw(context)
             context.set_source_rgb(0,0,0)
             SRSE_Grid.draw(context)
+    return Shadows
 
 
 def main():
-    keyframe_shadowlist = generate_keyframe_grid()
+    keyframe_nondiscrete_shadows = generate_keyframe_grid()
 main()
