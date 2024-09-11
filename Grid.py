@@ -5,6 +5,7 @@ from context_tools import mapped_svg_context
 
 class Grid:
     robot_size = .15
+    label = False #False = clear : True = contaminated : default status is clear
 
     def __init__(self,resolution,occupancy_array):
         self.resolution = resolution
