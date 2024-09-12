@@ -184,6 +184,7 @@ class Grid:
         grid_out = Grid(self.resolution,array_out)
         grid_out.switch_points()
         self.switch_points()
+        grid_out.occupancy_array = grid_out.occupancy_array - self.occupancy_array
         return grid_out
     
     def get_movement_shadows(self,from_point,to_point): # points are given in meters
