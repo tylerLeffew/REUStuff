@@ -21,7 +21,7 @@ def generate_keyframe_grid():
 
     list_of_shadows[1].label = True
     list_of_shadows[2].label = True
-    with mapped_png_context("Images/keyframe_representation.png",((0,0),(10,10)),(1000,1000)) as context:
+    with mapped_png_context("Test_Shadow_Tracking_Images/keyframe_representation.png",((0,0),(10,10)),(1000,1000)) as context:
             for shadow in list_of_shadows:
                     print(f"This is my label: {shadow.label}")
                     if shadow.label == True:
@@ -33,7 +33,27 @@ def generate_keyframe_grid():
             SRSE_Grid.draw(context)
     return Shadows
 
+def generate_nothing_grid():
+    SRSE_Grid = Grid(.05,big_array)
+    Shadows = SRSE_Grid.get_all_shadows((6,6))
+    Shadows.occupancy_array = Shadows.occupancy_array - SRSE_Grid.occupancy_array
+    list_of_shadows = Shadows.compute_separate_shadows()
+
+    list_of_shadows[1].label = True
+    list_of_shadows.pop(2)
+    with mapped_png_context("Test_Shadow_Tracking_Images/nothing_representation.png",((0,0),(10,10)),(1000,1000)) as context:
+            for shadow in list_of_shadows:
+                    print(f"This is my label: {shadow.label}")
+                    if shadow.label == True:
+                        context.set_source_rgb(1,0,0)
+                    else:
+                          context.set_source_rgb(0,1,0)
+                    shadow.draw(context)
+            context.set_source_rgb(0,0,0)
+            SRSE_Grid.draw(context)
+    return Shadows
 
 def main():
     keyframe_nondiscrete_shadows = generate_keyframe_grid()
+    nothing_shadows = generate_nothing_grid()
 main()
