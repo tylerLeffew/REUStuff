@@ -69,9 +69,45 @@ def draw_list_of_shadows(imagename,list_of_shadows):
                 else:
                         context.set_source_rgb(0,1,0)
                 shadow.draw(context)
+
+def create_cup_grid():
+        image = cv2.imread('cup_piece.png',0)
+        print("'image' data type: ",image.dtype)
+        image = image/255
+        image = image.astype(np.float32)
+        print(image.dtype)
+        load_to_all_binary(image)
+        image_grid = Grid(0.035,image)
+        print("claculated aabb = ", image_grid.calc_aabb())
+        return image_grid
+
+def load_to_all_binary(array):
+      shape = array.shape
+      for i in range(shape[0]):
+            for j in range(shape[1]):
+                  if array[i,j] >0.07: array[i,j] = 1
+
+      
 def main():
-    keyframe_nondiscrete_shadows = generate_keyframe_grid()
-    nothing_shadows = generate_nothing_grid()
-    label_status(keyframe_nondiscrete_shadows, nothing_shadows)
-    draw_list_of_shadows("test",keyframe_nondiscrete_shadows)
+    # keyframe_nondiscrete_shadows = generate_keyframe_grid()
+    # nothing_shadows = generate_nothing_grid()
+    # label_status(keyframe_nondiscrete_shadows, nothing_shadows)
+    # draw_list_of_shadows("keyframe_representation",keyframe_nondiscrete_shadows)
+
+    cup_grid = create_cup_grid()
+    print(cup_grid.calc_aabb)
+    first_position = cup_grid.get_all_shadows((3,5))
+    list_first = first_position.compute_separate_shadows()
+    list_first[1].label = True
+    list_first[0].label = True
+    draw_list_of_shadows("cup_first_position",list_first)
+    second_position = cup_grid.get_all_shadows((5,5))
+    list_second = second_position.compute_separate_shadows()
+    label_status(list_first,list_second)
+    draw_list_of_shadows("cup_second_position",list_second)
+    third_position = cup_grid.get_all_shadows((8,5))
+    list_third = third_position.compute_separate_shadows()
+    label_status(list_second,list_third)
+    draw_list_of_shadows("cup_third_position",list_third)
+
 main()
