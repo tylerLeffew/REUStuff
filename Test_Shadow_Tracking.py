@@ -87,7 +87,23 @@ def load_to_all_binary(array):
             for j in range(shape[1]):
                   if array[i,j] >0.07: array[i,j] = 1
 
-      
+def appear_dis_example_cup_env():
+    cup_grid = create_cup_grid()
+    print(cup_grid.calc_aabb)
+    first_position = cup_grid.get_all_shadows((3,5))
+    list_first = first_position.compute_separate_shadows()
+    list_first[1].label = True
+    list_first[0].label = True
+    draw_list_of_shadows("cup_first_position",list_first)
+    second_position = cup_grid.get_all_shadows((5,5))
+    list_second = second_position.compute_separate_shadows()
+    label_status(list_first,list_second)
+    draw_list_of_shadows("cup_second_position",list_second)
+    third_position = cup_grid.get_all_shadows((8,5))
+    list_third = third_position.compute_separate_shadows()
+    label_status(list_second,list_third)
+    draw_list_of_shadows("cup_third_position",list_third)
+    
 def main():
     # keyframe_nondiscrete_shadows = generate_keyframe_grid()
     # nothing_shadows = generate_nothing_grid()
