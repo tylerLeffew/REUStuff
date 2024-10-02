@@ -110,20 +110,38 @@ def main():
     # label_status(keyframe_nondiscrete_shadows, nothing_shadows)
     # draw_list_of_shadows("keyframe_representation",keyframe_nondiscrete_shadows)
 
-    cup_grid = create_cup_grid()
-    print(cup_grid.calc_aabb)
-    first_position = cup_grid.get_all_shadows((3,5))
-    list_first = first_position.compute_separate_shadows()
-    list_first[1].label = True
-    list_first[0].label = True
-    draw_list_of_shadows("cup_first_position",list_first)
-    second_position = cup_grid.get_all_shadows((5,5))
-    list_second = second_position.compute_separate_shadows()
-    label_status(list_first,list_second)
-    draw_list_of_shadows("cup_second_position",list_second)
-    third_position = cup_grid.get_all_shadows((8,5))
-    list_third = third_position.compute_separate_shadows()
-    label_status(list_second,list_third)
-    draw_list_of_shadows("cup_third_position",list_third)
+    # cup_grid = create_cup_grid()
+
+    # ## Human-readable cup
+
+    # print(cup_grid.calc_aabb)
+    # first_position = cup_grid.get_all_shadows((3,5))
+    # list_first = first_position.compute_separate_shadows()
+    # list_first[1].label = True
+    # list_first[0].label = True
+    # draw_list_of_shadows("cup_first_position",list_first)
+    # second_position = cup_grid.get_all_shadows((5,5))
+    # list_second = second_position.compute_separate_shadows()
+    # label_status(list_first,list_second)
+    # draw_list_of_shadows("cup_second_position",list_second)
+    # third_position = cup_grid.get_all_shadows((8,5))
+    # list_third = third_position.compute_separate_shadows()
+    # label_status(list_second,list_third)
+    # draw_list_of_shadows("cup_third_position",list_third)
+
+    # test_array = np.array([[0,0,0,0,1],
+    #                        [0,0,0,0,0],
+    #                        [0,1,0,0,0],
+    #                        [0,0,0,0,0],
+    #                        [0,0,0,0,0]],dtype=np.float64)
+    # small_grid = Grid(1,test_array)
+    # print(small_grid.occupancy_array)
+    # small_grid2 = small_grid.get_all_shadows((1,0))
+    # print(small_grid2.occupancy_array)
+    # print("\n")
+    # print((small_grid.occupancy_array + small_grid2.occupancy_array))
+    # draw_list_of_shadows("small_array_test",[small_grid])
+    # draw_list_of_shadows("small_array_test2",[small_grid2])
+    pass
 
 main()

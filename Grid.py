@@ -131,6 +131,7 @@ class Grid:
         x_index = int(point_xy[0]/self.resolution)
         y_index = int(point_xy[1]/self.resolution)
         point_out = [x_index,y_index]
+        print("conversion from unit point to index: ",point_out)
         return point_out
 
     def slice_visibility_array_from_index(self, indexes, current_grid):
