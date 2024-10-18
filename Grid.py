@@ -207,7 +207,7 @@ class Grid:
                 if self.occupancy_array[i,j] >0 and comparison_grid_array[i,j]>0: return True
         return False
     
-    def string_information(self,array_print):
+    def string_information(self,array_print = False):
         if array_print == True:
             return f"\nGrid shape: {self.occupancy_array.shape}\nResolution of Grid: {self.resolution}\n\nGrid:\n{self.occupancy_array}\n"
         else:

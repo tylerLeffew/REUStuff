@@ -60,8 +60,8 @@ def label_status(previous_grid, current_grid):
                         shadow.label = True
                         break
       
-def draw_list_of_shadows(imagename,list_of_shadows):
-    with mapped_png_context(f"Test_Shadow_Tracking_Images/{imagename}.png",((0,0),(10,10)),(1000,1000)) as context:
+def draw_list_of_shadows(imagename,list_of_shadows,aabb):
+    with mapped_png_context(f"Test_Shadow_Tracking_Images/{imagename}.png",(aabb),(1000,1000)) as context:
         for shadow in list_of_shadows:
                 print(f"This is my label: {shadow.label}")
                 if shadow.label == True:
@@ -86,6 +86,7 @@ def load_to_all_binary(array):
       for i in range(shape[0]):
             for j in range(shape[1]):
                   if array[i,j] >0.07: array[i,j] = 1
+                  else: array[i,j] = 0
 
 def appear_dis_example_cup_env():
     cup_grid = create_cup_grid()
@@ -104,30 +105,14 @@ def appear_dis_example_cup_env():
     label_status(list_second,list_third)
     draw_list_of_shadows("cup_third_position",list_third)
     
-def main():
+if __name__=='__main__':
+
     # keyframe_nondiscrete_shadows = generate_keyframe_grid()
     # nothing_shadows = generate_nothing_grid()
     # label_status(keyframe_nondiscrete_shadows, nothing_shadows)
     # draw_list_of_shadows("keyframe_representation",keyframe_nondiscrete_shadows)
 
-    # cup_grid = create_cup_grid()
-
-    # ## Human-readable cup
-
-    # print(cup_grid.calc_aabb)
-    # first_position = cup_grid.get_all_shadows((3,5))
-    # list_first = first_position.compute_separate_shadows()
-    # list_first[1].label = True
-    # list_first[0].label = True
-    # draw_list_of_shadows("cup_first_position",list_first)
-    # second_position = cup_grid.get_all_shadows((5,5))
-    # list_second = second_position.compute_separate_shadows()
-    # label_status(list_first,list_second)
-    # draw_list_of_shadows("cup_second_position",list_second)
-    # third_position = cup_grid.get_all_shadows((8,5))
-    # list_third = third_position.compute_separate_shadows()
-    # label_status(list_second,list_third)
-    # draw_list_of_shadows("cup_third_position",list_third)
+    
 
     # test_array = np.array([[0,0,0,0,1],
     #                        [0,0,0,0,0],
@@ -142,6 +127,26 @@ def main():
     # print((small_grid.occupancy_array + small_grid2.occupancy_array))
     # draw_list_of_shadows("small_array_test",[small_grid])
     # draw_list_of_shadows("small_array_test2",[small_grid2])
-    pass
 
-main()
+
+
+
+    image_array = cv2.imread('object_envs/splitmerge.png',0)
+    image_array=image_array/255
+    load_to_all_binary(image_array)
+    grid_sm = Grid(.1,image_array)
+    grid_sm2 = grid_sm.get_all_shadows([10.5,16])
+    grid_sm3 = grid_sm.get_all_shadows([10.5,13])
+    list1 = grid_sm3.compute_separate_shadows()
+    list2 = grid_sm2.compute_separate_shadows()
+    list1[1].label = True
+    draw_list_of_shadows("sm_test1", list1,grid_sm.calc_aabb())
+    # label_status(list1,list2)
+    draw_list_of_shadows("sm_test2",list2,grid_sm.calc_aabb())
+    with mapped_png_context('sm_env_test.png',(grid_sm.calc_aabb()),(1000,1000)) as context:
+          print(grid_sm.calc_aabb())
+          context.set_source_rgb(0,0,1)
+          grid_sm2.draw(context)
+          context.set_source_rgb(1,0,0)
+          grid_sm.draw(context)
+

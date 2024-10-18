@@ -31,7 +31,7 @@ def human_readable_grid_construction():
 
 def largescale_grid_construction():
     large_grid = Grid(1,largescale_array)
-    print(large_grid.string_information(0))
+    print(large_grid.string_information())
     if np.array_equal(large_grid.occupancy_array,largescale_array):
         print("\nInput array matches instance array: Pass")
     else:
@@ -39,6 +39,11 @@ def largescale_grid_construction():
 
 
 if __name__ == "__main__":
+    print("\n")
+    print(gold_master,"\n\nGold master array for reference in test 1")
     print(f"\n{'-'*110}")
-    print('Testing for human readable array in a Grid object instance\nExpected result is a grid instace with a 5 by 5 shape, resolution of 1, grid match gold master')
+    print('Testing for human readable array in a Grid object instance\nExpected result is a grid instance with a 5 by 5 shape, resolution of 1, grid match gold master')
     human_readable_grid_construction()
+    print(f"\n{'-'*110}")
+    print("testing largescale array\nExpected result: 225 by 225 grid with a resolution of 1")
+    largescale_grid_construction()
