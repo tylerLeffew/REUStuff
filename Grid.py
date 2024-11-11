@@ -18,11 +18,6 @@ class Grid:
 
 
     def compute_separate_shadows(self):
-    # return list of grid objects (1 for each shadow)
-        # loop through cells
-        # find a cell that is a shadow
-        # bfs to find rest of shadow
-        # add to list
         shadow_begin_point = []
         list_of_grids_out = []
         shape = self.occupancy_array.shape
@@ -34,8 +29,10 @@ class Grid:
                     list_of_grids_out.append(grid_to_add_to_list)
         return list_of_grids_out
 
-                
-    def find_shadow_from(self,start_i,start_j):
+    """This method is used in conjuction with compute_separate_shadows().
+        When given an initial index, BFS search is done to find all points touching that
+        are also occupied """           
+    def find_shadow_from(self,start_i,start_j): 
         array_out = np.zeros((self.occupancy_array.shape))
         Q = [(start_i,start_j)]
         while len(Q) > 0:
@@ -52,25 +49,21 @@ class Grid:
                 Q.append((i2,j2))
         grid_object_out = Grid(self.resolution,array_out)
         return grid_object_out
-
-        # return grid
         
-    
-    
-
-    
+    """ This method calculates the user unit bounding box using the relolution provided
+        and the size of the array to create a proportional bounding box for mapped_svg/png_context()"""
     def calc_aabb(self):
         self.temp_x = self.occupancy_array.shape[1] * self.resolution
         self.temp_y = self.occupancy_array.shape[0] * self.resolution
         return ((0,0),(self.temp_x,self.temp_y))
     
+    """This method draws a square at a given xy of == size to the resoution"""
     def make_square(self,x,y,context):
-        # context.set_line_width(4)
-        # context.set_source_rgba(100, 0, 0, opacity)
         context.rectangle(x,y,self.resolution,self.resolution)
         context.fill()
         context.stroke_preserve()
 
+    """This method draws a blue circle at a given xy"""
     def add_robot(self,position_xy,context):
        context.set_line_width(4)
        context.set_source_rgba(0, 0, 255, 1)
@@ -78,20 +71,12 @@ class Grid:
        context.fill()
        context.stroke_preserve()
 
-    def visualize_pursuer_movement(self,from_point,to_point,path_name,svg_size):
-        list_of_grids = self.get_movement_shadows(from_point,to_point)
-        aabb = self.calc_aabb()
-        for i in range(len(list_of_grids)):
-            file_name = f"{path_name}{i+1:04d}.svg"
-            # below is only visualization
-            with mapped_svg_context(file_name,aabb,svg_size) as context:
-                self.draw(context,list_of_grids[i])
-                print(file_name + " created")
+
 
 
 
     
-    
+    """This method draws the occupancy grid of the Grid instance to a given cairo context"""
     def draw(self,context):
         position_y = 0
         shape = self.occupancy_array.shape
@@ -103,7 +88,7 @@ class Grid:
                 position_x+=self.resolution
             position_y+=self.resolution
 
-
+    """This method uses a neighborhood search calculate areas of the occupancy array given two vectors """
     def visibility_within_cone(self,grid, u_direction, v_direction):
         u = np.asarray(u_direction, dtype=int)
         v = np.asarray(v_direction, dtype=int)
@@ -126,7 +111,8 @@ class Grid:
             k = 0
             position = m*u
             grid[:] = (grid >= 0.5)
-
+    """This method converts a given coordinate point from human units to the nearest array index
+        using the resolution"""
     def find_index_position(self, point_xy):
         x_index = int(point_xy[0]/self.resolution)
         y_index = int(point_xy[1]/self.resolution)
@@ -160,7 +146,6 @@ class Grid:
         self.visibility_within_cone(current_grid[x0:, y0::-1], [1,2], [1,1])
         self.visibility_within_cone(current_grid[x0:, y0::-1], [1,2], [0,1])
 
-        # self.occupancy_grid[x0,y0] = 0
 
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
