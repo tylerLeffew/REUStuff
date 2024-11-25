@@ -7,6 +7,7 @@ name = "pypi"
 numpy = "*"
 pycairo = "*"
 clip = {git = "git+https://github.com/jokane/clip"}
+triangle = "*"
 
 [dev-packages]
 
