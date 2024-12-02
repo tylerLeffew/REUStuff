@@ -1,0 +1,25 @@
+def visualize_pursuer_movement(self,from_point,to_point,path_name,svg_size):
+    list_of_grids = self.get_movement_shadows(from_point,to_point)
+    aabb = self.calc_aabb()
+    for i in range(len(list_of_grids)):
+        file_name = f"{path_name}{i+1:04d}.svg"
+        # below is only visualization
+        with mapped_svg_context(file_name,aabb,svg_size) as context:
+            self.draw(context,list_of_grids[i])
+            print(file_name + " created")
+
+
+def switch_points(self):
+    shape = self.occupancy_array.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            self.occupancy_array[i,j] = 1-self.occupancy_array[i,j] 
+
+
+def overlaps(self,comparison_grid):
+    shape = self.occupancy_array.shape
+    comparison_grid_array = np.copy(comparison_grid.occupancy_array)
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if self.occupancy_array[i,j] >0 and comparison_grid_array[i,j]>0: return True
+    return False

@@ -30,6 +30,7 @@ def flip_arrayX(array):
     print(new_array)
 
 
+
 if __name__ == '__main__':
     with mapped_svg_context('movingtest.svg',grid1.calc_aabb(),(100,100)) as context:
         context.set_source_rgb(1,1,0)

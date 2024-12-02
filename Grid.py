@@ -29,7 +29,7 @@ class Grid:
                     list_of_grids_out.append(grid_to_add_to_list)
         return list_of_grids_out
 
-    """This method is used in conjuction with compute_separate_shadows().
+    """This method is used in conjunction with compute_separate_shadows().
         When given an initial index, BFS search is done to find all points touching that
         are also occupied """           
     def find_shadow_from(self,start_i,start_j): 
@@ -50,14 +50,14 @@ class Grid:
         grid_object_out = Grid(self.resolution,array_out)
         return grid_object_out
         
-    """ This method calculates the user unit bounding box using the relolution provided
+    """ This method calculates the user unit bounding box using the resolution provided
         and the size of the array to create a proportional bounding box for mapped_svg/png_context()"""
     def calc_aabb(self):
         self.temp_x = self.occupancy_array.shape[1] * self.resolution
         self.temp_y = self.occupancy_array.shape[0] * self.resolution
         return ((0,0),(self.temp_x,self.temp_y))
     
-    """This method draws a square at a given xy of == size to the resoution"""
+    """This method draws a square at a given xy of == size to the resolution"""
     def make_square(self,x,y,context):
         context.rectangle(x,y,self.resolution,self.resolution)
         context.fill()
@@ -111,6 +111,7 @@ class Grid:
             k = 0
             position = m*u
             grid[:] = (grid >= 0.5)
+
     """This method converts a given coordinate point from human units to the nearest array index
         using the resolution"""
     def find_index_position(self, point_xy):
@@ -120,7 +121,15 @@ class Grid:
         print("conversion from unit point to index: ",point_out)
         return point_out
 
+
+    """
+    This method takes in a point in human units, and slices the given array current_grid
+    from the position of the point, and then applies the visibility within cone algorithm 
+    to the slice. The algorithm is applied in each of the four directions (up, right, down, 
+    left) and in the four diagonal directions. The result is stored in the slice of the array.""" 
     def slice_visibility_array_from_index(self, indexes, current_grid):
+   
+    
         unit_to_index = self.find_index_position(indexes)
 
         x0 = unit_to_index[1]
@@ -146,7 +155,7 @@ class Grid:
         self.visibility_within_cone(current_grid[x0:, y0::-1], [1,2], [1,1])
         self.visibility_within_cone(current_grid[x0:, y0::-1], [1,2], [0,1])
 
-
+    """This method returns a list of equidistant points along a straight line given the to and from points """
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
         point_amount = int(distance/.2)
@@ -157,12 +166,16 @@ class Grid:
         print("calculated points = "+str(list_out))
         return list_out
     
+    """This method flips all the points in self.occupancy_grid"""
     def switch_points(self):
         shape = self.occupancy_array.shape
-        for i in range(shape[0]):
+        for i in range(shape[0]):                                                                               # <------------- Redundant method find better -----------------
             for j in range(shape[1]):
                 self.occupancy_array[i,j] = 1-self.occupancy_array[i,j] 
 
+    """This method is given an index on the occupancy grid in meters and calculates
+        all cells that are nonvisible and returns them all non-discretely in a new
+        grid instance"""
     def get_all_shadows(self,pursuer_position): # pursuer position given in meters
         self.switch_points()
         array_out = np.copy(self.occupancy_array)
@@ -172,7 +185,10 @@ class Grid:
         self.switch_points()
         grid_out.occupancy_array = grid_out.occupancy_array - self.occupancy_array
         return grid_out
-    
+
+    """This method is given a two points in meters, calculates a list of equidistant points along a line
+        from the beginning point to the end point. It then calculates a new grid instance at each point
+        with nonvisible regions. It compiles and returns the list of grids"""    
     def get_movement_shadows(self,from_point,to_point): # points are given in meters
         list_of_points = self.points_along_line(from_point[0],to_point[0],from_point[1],to_point[1])
         list_of_grids_out = []
@@ -183,15 +199,12 @@ class Grid:
             list_of_grids_out.append(temp_grid_object)
         return list_of_grids_out
     
-    
+    """This method checks if two occupancy grids overlap and returns true 
+        if they do and false if they don't"""
     def overlaps(self,comparison_grid):
-        shape = self.occupancy_array.shape
-        comparison_grid_array = np.copy(comparison_grid.occupancy_array)
-        for i in range(shape[0]):
-            for j in range(shape[1]):
-                if self.occupancy_array[i,j] >0 and comparison_grid_array[i,j]>0: return True
-        return False
+        return np.any(self.occupancy_array, comparison_grid.occupancy_array)
     
+    """basically __str__()"""
     def string_information(self,array_print = False):
         if array_print == True:
             return f"\nGrid shape: {self.occupancy_array.shape}\nResolution of Grid: {self.resolution}\n\nGrid:\n{self.occupancy_array}\n"
