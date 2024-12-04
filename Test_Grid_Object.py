@@ -22,6 +22,11 @@ largescale_array[int(.6*nx):int(.6*nx)+wx,int(.6*ny):int(.6*ny)+wy] = 1
 
 
 def human_readable_grid_construction():
+    """
+    Tests the Grid object initialization with a human readable numpy array 
+    and a resolution of 1. Verifies that the array passed in matches the 
+    array stored in the Grid object instance.
+    """
     sample_grid = Grid(1,gold_master)
     print(sample_grid.string_information(1))
     if np.array_equal(sample_grid.occupancy_array,gold_master):
@@ -30,6 +35,11 @@ def human_readable_grid_construction():
         print("\nSomething went wrong: Fail")
 
 def largescale_grid_construction():
+    """
+    Tests the Grid object initialization with a large-scale numpy array 
+    and a resolution of 1. Verifies that the array passed in matches 
+    the array stored in the Grid object instance.
+    """
     large_grid = Grid(1,largescale_array)
     print(large_grid.string_information())
     if np.array_equal(large_grid.occupancy_array,largescale_array):

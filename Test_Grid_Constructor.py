@@ -44,6 +44,14 @@ def load_to_all_binary(array, threshold = 0.1):
 
 
 def test_perfect_image_cv2():
+    """
+    Test loading a perfect image using OpenCV and verify its correctness.
+
+    This function reads a 5x5 checkerboard image in grayscale, normalizes it to
+    a binary form using floor division, and checks if the resulting array matches
+    the expected inverted gold master pattern. Prints the loaded array and a message
+    indicating whether the loaded image matches the expected pattern.
+    """
     image_test = cv2.imread("5x5_checkerboard.png",0)
     image_test = np.floor(image_test/255)
     print(f"original form cv2 :\n{image_test}\n")
@@ -54,6 +62,13 @@ def test_perfect_image_cv2():
         print("Something went wrong :(")
     
 def test_np_floor():
+    """
+    Test loading a fuzzy image using numpy's floor division and verify its correctness.
+
+    This function reads a 5x5 grayscale image, normalizes it to a binary form using numpy's floor division,
+    and checks if the resulting array matches the expected gold master pattern. Prints the loaded array
+    and a message indicating whether the loaded image matches the expected pattern.
+    """
     threshold = .10
     new_instance = np.copy(float_array/255)
     load_to_all_binary(new_instance, threshold)
@@ -66,6 +81,15 @@ def test_np_floor():
         print("Something went wrong :(")
 
 def test_toggle_bits_cv2():
+    """
+    Test toggling bits of a checkerboard image using OpenCV.
+
+    This function reads a 5x5 checkerboard image in grayscale, normalizes it to
+    a binary form using floor division, toggles its bits, and checks if the
+    resulting array matches the expected gold master pattern. Prints the original
+    and toggled arrays along with a message indicating whether the toggled image
+    matches the expected pattern.
+    """
     image_test = cv2.imread("5x5_checkerboard.png",0)
     image_test = np.floor(image_test/255)
     print(f"original form cv2 :\n{image_test}\n")
