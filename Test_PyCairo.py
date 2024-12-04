@@ -5,6 +5,13 @@ from Grid import Grid
 import Test_Shadow_Tracking
 import numpy as np
 
+
+
+"""
+This file demonstrates a numpy array and resolution value being used to initialize a Grid object.
+"""
+
+
 def flip_arrayX(array):
     new_array = np.copy(array)
     for i in range(array.shape[0]):
