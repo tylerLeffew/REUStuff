@@ -9,6 +9,8 @@ pycairo = "*"
 clip = {git = "git+https://github.com/jokane/clip"}
 triangle = "*"
 opencv-python = "*"
+matplotlib = "*"
+pygobject = "*"
 
 [dev-packages]
 

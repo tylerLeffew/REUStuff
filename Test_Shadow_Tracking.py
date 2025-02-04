@@ -3,6 +3,7 @@ from context_tools import *
 import cairo, clip, cv2, random, os
 import numpy as np
 import time
+import triangle as tr
 
 
 nx,ny = 225,225

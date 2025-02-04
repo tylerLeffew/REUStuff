@@ -1,7 +1,5 @@
 import numpy as np
 import math, random
-from context_tools import mapped_svg_context
-
 
 class Grid:
     robot_size = .15
