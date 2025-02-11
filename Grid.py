@@ -5,7 +5,7 @@ class Grid:
     robot_size = .15
     label = False #False = clear : True = contaminated : default status is clear
 
-    def __init__(self,resolution,occupancy_array):
+    def __init__(self,occupancy_array,resolution=1):
         self.resolution = resolution
         self.occupancy_array = occupancy_array
         self.copy_of_original_grid = np.copy(occupancy_array)
@@ -75,7 +75,10 @@ class Grid:
 
     
     """This method draws the occupancy grid of the Grid instance to a given cairo context"""
-    def draw(self,context):
+    def draw(self,context,color=None):
+        color_tuple = color
+        if color_tuple:
+            context.set_source_rgb(color_tuple[0],color_tuple[1],color_tuple[2])
         position_y = 0
         shape = self.occupancy_array.shape
         for i in range(shape[0]):
