@@ -11,21 +11,25 @@ def get_color_list():
         return color_tuples
 
 def main():
-    image = cv2.imread("weird_shapes.jpeg",0)
+    image = cv2.imread("object_envs/5x5_checkerboard.png",0)
     
 
     np.info(image)
 
-    cv2.imshow("hellO",image)
+    cv2.imshow("raw image",image)
     # waits for user to press any key
     # (this is necessary to avoid Python kernel form crashing)
     cv2.waitKey(0)
 
     # closing all open windows
     cv2.destroyAllWindows()
+    image = image/255
+    print(image)
+    print(1.0 - image)
 
-    test_grid = Grid(image,resolution=.5)
-    cv2.imshow("hello",test_grid.occupancy_array)
+    test_grid = Grid(image,resolution=2)
+    cv2.imshow("occ grid",test_grid.occupancy_array)
+
     cv2.waitKey(0)
 
     # closing all open windows
@@ -33,7 +37,11 @@ def main():
     colors = get_color_list()
     print(colors["red"])
     with mapped_png_context("testcolor.png",((0,0),(10,10)),(1000,1000)) as context:
-        test_grid.draw(context,colors["red"])
+        test_grid.draw(context,colors["teal"])
+        test_grid.add_robot((0,0),context)
+        test_grid.add_robot((0,10),context)
+        test_grid.add_robot((10,0),context)
+        test_grid.add_robot((10,10),context)
 
 
     

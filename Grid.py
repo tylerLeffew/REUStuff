@@ -77,6 +77,7 @@ class Grid:
     """This method draws the occupancy grid of the Grid instance to a given cairo context"""
     def draw(self,context,color=None):
         color_tuple = color
+        print("dis the color ",color_tuple)
         if color_tuple:
             context.set_source_rgb(color_tuple[0],color_tuple[1],color_tuple[2])
         position_y = 0
