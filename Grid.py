@@ -76,9 +76,9 @@ class Grid:
     
     """This method draws the occupancy grid of the Grid instance to a given cairo context"""
     def draw(self,context,color=None):
-        color_tuple = color
-        print("dis the color ",color_tuple)
-        if color_tuple:
+        if color:
+            color_tuple = color
+            print("dis the color ",color_tuple)
             context.set_source_rgb(color_tuple[0],color_tuple[1],color_tuple[2])
         position_y = 0
         shape = self.occupancy_array.shape
@@ -130,7 +130,7 @@ class Grid:
     to the slice. The algorithm is applied in each of the four directions (up, right, down, 
     left) and in the four diagonal directions. The result is stored in the slice of the array.""" 
     def slice_visibility_array_from_index(self, indexes, current_grid):
-   
+        print('hit')
     
         unit_to_index = self.find_index_position(indexes)
 
@@ -170,10 +170,7 @@ class Grid:
     
     """This method flips all the points in self.occupancy_grid"""
     def switch_points(self):
-        shape = self.occupancy_array.shape
-        for i in range(shape[0]):                                                                               # <------------- Redundant method find better -----------------
-            for j in range(shape[1]):
-                self.occupancy_array[i,j] = 1-self.occupancy_array[i,j] 
+        self.occupancy_array = 1 - self.occupancy_array 
 
     """This method is given an index on the occupancy grid in meters and calculates
         all cells that are nonvisible and returns them all non-discretely in a new
@@ -181,8 +178,10 @@ class Grid:
     def get_all_shadows(self,pursuer_position): # pursuer position given in meters
         self.switch_points()
         array_out = np.copy(self.occupancy_array)
+        print(pursuer_position)
         self.slice_visibility_array_from_index(pursuer_position,array_out)
-        grid_out = Grid(self.resolution,array_out)
+        grid_out = Grid(array_out,self.resolution)
+        print(array_out.dtype)
         grid_out.switch_points()
         self.switch_points()
         grid_out.occupancy_array = grid_out.occupancy_array - self.occupancy_array
