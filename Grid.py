@@ -117,8 +117,9 @@ class Grid:
     """This method converts a given coordinate point from human units to the nearest array index
         using the resolution"""
     def find_index_position(self, point_xy):
+        print((point_xy[1]/self.resolution))
         x_index = int(point_xy[0]/self.resolution)
-        y_index = int(point_xy[1]/self.resolution)
+        y_index = int(self.occupancy_array.shape[0] - (point_xy[1]/self.resolution))
         point_out = [x_index,y_index]
         print("conversion from unit point to index: ",point_out)
         return point_out
@@ -130,7 +131,7 @@ class Grid:
     to the slice. The algorithm is applied in each of the four directions (up, right, down, 
     left) and in the four diagonal directions. The result is stored in the slice of the array.""" 
     def slice_visibility_array_from_index(self, indexes, current_grid):
-        print('hit')
+        print('hit slvafi')
     
         unit_to_index = self.find_index_position(indexes)
 
