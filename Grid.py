@@ -45,7 +45,7 @@ class Grid:
                 if j2>= self.occupancy_array.shape[1]: continue
                 if self.occupancy_array[i2,j2] == 0: continue
                 Q.append((i2,j2))
-        grid_object_out = Grid(self.resolution,array_out)
+        grid_object_out = Grid(array_out,self.resolution)
         return grid_object_out
         
     """ This method calculates the user unit bounding box using the resolution provided
@@ -82,10 +82,12 @@ class Grid:
             context.set_source_rgb(color_tuple[0],color_tuple[1],color_tuple[2])
         position_y = 0
         shape = self.occupancy_array.shape
+        grid_copy = np.copy(self.occupancy_array)
+        grid_copy = grid_copy[::-1]
         for i in range(shape[0]):
             position_x = 0
             for j in range(shape[1]):
-                if self.occupancy_array[i,j] == 1:
+                if grid_copy[i,j] == 1:
                     self.make_square(position_x,position_y,context)
                 position_x+=self.resolution
             position_y+=self.resolution
@@ -135,7 +137,7 @@ class Grid:
     
         unit_to_index = self.find_index_position(indexes)
 
-        x0 = unit_to_index[1]
+        x0 = unit_to_index[1] # reversed because of indexing
         y0 = unit_to_index[0]
 
         self.visibility_within_cone(current_grid[x0:, y0:], [2,1], [1,0])
@@ -161,7 +163,7 @@ class Grid:
     """This method returns a list of equidistant points along a straight line given the to and from points """
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
-        point_amount = int(distance/.2)
+        point_amount = int(distance/10)
         print(point_amount," files about to be created")
         list_x = np.linspace(from_x,to_x,point_amount)
         list_y = np.linspace(from_y,to_y,point_amount)
@@ -199,7 +201,7 @@ class Grid:
             temp_grid_object = self.get_all_shadows(list_of_points[i])
             print("movement shadows of grid",i+1," calculated.")
             list_of_grids_out.append(temp_grid_object)
-        return list_of_grids_out
+        return list_of_grids_out, list_of_points
     
     """This method checks if two occupancy grids overlap and returns true 
         if they do and false if they don't"""
