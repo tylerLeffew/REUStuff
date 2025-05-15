@@ -21,7 +21,7 @@ if __name__ == "__main__":
        context (cairo.Context): The context in which to draw the robot
        """
        context.set_source_rgb(0, 0, 1)
-       context.arc(position[0],position[1],(2.3),0,2*math.pi)
+       context.arc(position[0],position[1],(1.5),0,2*math.pi)
        context.fill()
 
     image = cv2.imread("Images/object_envs/9roomgrid50.png",0)
@@ -34,17 +34,27 @@ if __name__ == "__main__":
     print(thresh.dtype)
     grid = Grid(thresh,.1)
     print(grid.calc_aabb())
-    grid2 = grid.get_all_shadows((44,35))
+    grid2 = grid.get_all_shadows((44,40))
     # print(grid2.occupancy_array[0,0])
     print(grid2.occupancy_array.shape)
-    with mapped_png_context("test_example_output4.png",grid.calc_aabb(),svg_size=(grid.occupancy_array.shape[1],grid.occupancy_array.shape[0])) as context:
+    with mapped_png_context("Images/test_example_output4.png",grid.calc_aabb(),svg_size=(grid.occupancy_array.shape[1],grid.occupancy_array.shape[0])) as context:
         grid.occupancy_array = grid.occupancy_array[::-1, :]
         context.set_source_rgb(0,0,0)
         grid.draw(context=context)
         context.set_source_rgb(.84,.6,.94)
         grid2.occupancy_array = grid2.occupancy_array[::-1, :]
         grid2.draw(context=context)
-        add_robot([44,35],context)
+        add_robot([0,0],context)
+        add_robot([0,71.4],context)
+        add_robot([88.3,0],context)
+        add_robot([62.9,13.8],context)
+        add_robot([17.5,13.8],context)
+        add_robot([17.5,51.9],context)
+        add_robot([17.5,35.9],context)
+        add_robot([62.1,35.9],context)
+        add_robot([44.3,35.9],context)
+        add_robot([44.3,50.7],context)
+        add_robot([62.1,58.6],context)
     #     add_robot([0,0],context)
     #     add_robot([0,142],context)
     #     add_robot([176,142],context)
