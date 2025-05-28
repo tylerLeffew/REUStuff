@@ -163,7 +163,7 @@ class Grid:
     """This method returns a list of equidistant points along a straight line given the to and from points """
     def points_along_line(self, from_x, to_x, from_y, to_y):
         distance = math.sqrt(math.pow((to_x-from_x),2)+math.pow((to_y-from_y),2))
-        point_amount = int(distance/10)
+        point_amount = int(distance/1)
         print(point_amount," files about to be created")
         list_x = np.linspace(from_x,to_x,point_amount)
         list_y = np.linspace(from_y,to_y,point_amount)
