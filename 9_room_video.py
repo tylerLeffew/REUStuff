@@ -211,7 +211,7 @@ def compile_video():
        """
        Compile a video from a folder of PNG images in the Images/Video/VideoFrames
        folder. The video is saved as Images/Video/test_video.mp4 with a frame rate
-       of 30.
+       of 30..
        """
        print("\nAttempting to compile video\n")
        vid = clip.image_glob('Images/Room_test/*.png', frame_rate=30)
