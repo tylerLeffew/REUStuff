@@ -1,37 +1,46 @@
 import numpy as np
-import cv2
-from Grid import Grid
-import cairo
-import time
-from context_tools import mapped_svg_context
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 
-small_array = np.array([[1,1,0,0,0],
-                        [1,0,0,0,1],
-                        [0,0,0,0,0],
-                        [0,1,0,0,0],
-                        [0,0,1,0,1],
-                        [0,0,0,1,1]])
+# Dummy data: two binary grids
+grid1 = np.random.randint(0, 2, (10, 10))  # Base grid
+grid2 = np.random.rand(10, 10)             # Simulated sensor confidence
 
-gold_master = np.array([[0,1,0,1,0],
-                        [1,0,1,0,1],
-                        [0,1,0,1,0],
-                        [1,0,1,0,1],
-                        [0,1,0,1,0]],dtype=np.float32)
+# Initial threshold to binarize grid2
+initial_threshold = 0.5
 
-grid1 = Grid(1,gold_master)
+# Setup plot
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.25)  # Make room for slider
 
-def flip_arrayX(array):
-    new_array = np.copy(array)
-    for i in range(array.shape[0]):
-        new_array[i] = array[((array.shape[0]-1)-i)]
-    print("old")
-    print(array)
-    print("new")
-    print(new_array)
+# Compute initial overlay
+overlay_mask = grid2 > initial_threshold
+display = np.zeros((10, 10, 3))
+display[grid1 == 1] = [0.7, 0.7, 0.7]      # Base (gray)
+display[overlay_mask] = [1.0, 0.0, 0.0]    # Overlay (red)
 
+im = ax.imshow(display, interpolation='nearest')
+ax.set_title("Use slider to adjust threshold")
+ax.set_xticks(np.arange(10))
+ax.set_yticks(np.arange(10))
+ax.grid(True)
+ax.invert_yaxis()
 
+# Add slider below plot
+ax_slider = plt.axes([0.25, 0.1, 0.5, 0.03])  # [left, bottom, width, height]
+threshold_slider = Slider(ax_slider, 'Threshold', 0.0, 1.0, valinit=initial_threshold)
 
-if __name__ == '__main__':
-    with mapped_svg_context('movingtest.svg',grid1.calc_aabb(),(100,100)) as context:
-        context.set_source_rgb(1,1,0)
-        grid1.draw(context)
+# Update function
+def update(val):
+    threshold = threshold_slider.val
+    new_overlay = grid2 > threshold
+    new_display = np.zeros((10, 10, 3))
+    new_display[grid1 == 1] = [0.7, 0.7, 0.7]
+    new_display[new_overlay] = [1.0, 0.0, 0.0]
+    im.set_data(new_display)
+    fig.canvas.draw_idle()
+
+# Bind slider to update function
+threshold_slider.on_changed(update)
+
+plt.show()

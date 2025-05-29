@@ -181,13 +181,14 @@ class Grid:
     def get_all_shadows(self,pursuer_position): # pursuer position given in meters
         self.switch_points()
         array_out = np.copy(self.occupancy_array)
-        print(pursuer_position)
+        print("pur pos ",pursuer_position)
         self.slice_visibility_array_from_index(pursuer_position,array_out)
         grid_out = Grid(array_out,self.resolution)
         print(array_out.dtype)
         grid_out.switch_points()
         self.switch_points()
         grid_out.occupancy_array = grid_out.occupancy_array - self.occupancy_array
+        print("returning")
         return grid_out
 
     """This method is given a two points in meters, calculates a list of equidistant points along a line
