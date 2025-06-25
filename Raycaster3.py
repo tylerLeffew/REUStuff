@@ -9,6 +9,54 @@ class Raycaster:
         self.working_array = np.copy(array) # contains the rays as they are shot in the environment
         self.ray_dict = {} # dictionary that holds individual rays (no environments) with keys representing their source coordinates
         self.coordinate_list = []
+    def visit2(self,x, y):
+        try:
+            self.working_array[x][y] = 1
+        except IndexError:
+            pass
+    def point_in_triangle(self,p, a, b, c):
+        # Barycentric coordinate method
+        def sign(p1, p2, p3):
+            return (p1[0] - p3[0]) * (p2[1] - p3[1]) - \
+                (p2[0] - p3[0]) * (p1[1] - p3[1])
+        
+        d1 = sign(p, a, b)
+        d2 = sign(p, b, c)
+        d3 = sign(p, c, a)
+
+        has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+        has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+
+        return not (has_neg and has_pos)
+
+    def iterate_triangle(self, origin, point1, point2, visit):
+        x_coords = [origin[0], point1[0], point2[0]]
+        y_coords = [origin[1], point1[1], point2[1]]
+
+        min_x, max_x = min(x_coords), max(x_coords)
+        min_y, max_y = min(y_coords), max(y_coords)
+
+        for x in range(min_x, max_x + 1):
+            for y in range(min_y, max_y + 1):
+                if self.point_in_triangle((x, y), origin, point1, point2):
+                    visit(x, y)
+
+    def add_to_sorted_list(self, list, item):
+        for i in range(len(list)):
+            if list[i][2] >= item[2]:
+                list.insert(i, item)
+                return
+        list.append(item)
+
+    def ordered_coordinate_list(self, key):
+        items = self.ray_dict[key]
+        list_out = []
+        for item in items:
+            list_out.append(item[1])
+        self.coordinate_list = list_out
+        return list_out
+
+                
     def add_rays_except_key(self, exclude_key, array):
         for key, list_of_individual_rays in self.ray_dict.items():
             if exclude_key in self.ray_dict: 
@@ -16,9 +64,7 @@ class Raycaster:
             for ray in list_of_individual_rays:
                 array += ray
         return array
-    
-    
-        
+      
     def visit(self, x, y, array, ray_only_array):
         if x == self.current_target[0] and y == self.current_target[1]:
             self.hit_target = True
@@ -60,18 +106,30 @@ class Raycaster:
                     y += y_inc
                     error += dx
         except self.Stop as e:
-            print(e,"stopage at ",x, y)
+            pass
         except IndexError as e:
-            print("out of bounds stopage (index error) at ",x, y)
+            pass
         finally:
             if self.hit_target:
-                self.coordinate_list.append(current_coordinate)
+                adjusted_coordinate = (current_coordinate[1],self.master_array.shape[0] - current_coordinate[0])
+                offset_coordinate = (adjusted_coordinate[0] - x0, adjusted_coordinate[1] - y0)
+                angle = math.atan2(offset_coordinate[1], offset_coordinate[0])
+                if angle < 0: angle += 2 * math.pi
                 if key in self.ray_dict:
-                    ray_list.append(single_ray)
+                    print("here")
+                    self.add_to_sorted_list(ray_list,[single_ray, current_coordinate, angle])
                     self.ray_dict[key] = ray_list
+                    list_out = self.ordered_coordinate_list(key)
+                    print(list_out)
+                    for item in ray_list:
+                        print(item[2])
                 else:
-                    self.ray_dict[key] = [single_ray]
+                    print("there")
+                    self.ray_dict[key] = [[single_ray, current_coordinate, angle]]
                 self.working_array += single_ray
+
+            else:
+                print("No path found to target")
 
     def get_ray_endpoints(self, x, y, theta, sa, resolution):
         """
@@ -114,50 +172,17 @@ class Raycaster:
             endpoints.append(last_valid)
 
         return endpoints
-    
-    def fill_visibility_cone(self, origin, endpoints, fill_value=1):
-        """
-        Fills the area between ordered ray endpoints by triangulating with origin.
-        `origin`: (x, y) tuple (center cell)
-        `endpoints`: ordered list of (x, y) integer cell coordinates
-        Modifies self.master_array in-place.
-        """
-        height, width = self.master_array.shape
-        ox, oy = origin
-
-        def draw_triangle(p0, p1, p2):
-            # Sort by y to prepare for scanline fill
-            pts = sorted([p0, p1, p2], key=lambda p: p[1])
-            (x0, y0), (x1, y1), (x2, y2) = pts
-
-            def interpolate(xa, ya, xb, yb):
-                """Yields integer x values along the edge from (xa, ya) to (xb, yb)."""
-                if ya == yb:
-                    return [xa] * (yb - ya + 1)
-                length = yb - ya
-                return [int(round(xa + (xb - xa) * (y - ya) / length)) for y in range(ya, yb + 1)]
-
-            # Break into top and bottom halves
-            if y1 == y0:
-                x01 = [x0] * (y1 - y0 + 1)
-            else:
-                x01 = interpolate(x0, y0, x1, y1)
-            if y2 == y1:
-                x12 = [x1] * (y2 - y1 + 1)
-            else:
-                x12 = interpolate(x1, y1, x2, y2)
-            x02 = interpolate(x0, y0, x2, y2)
-
-            x_full = x01 + x12
-            for y, (xa, xb) in enumerate(zip(x_full, x02), start=y0):
-                if 0 <= y < height:
-                    x_start = max(0, min(xa, xb))
-                    x_end = min(width - 1, max(xa, xb))
-                    self.working_array[y, x_start:x_end + 1] = fill_value
-
-        for i in range(len(endpoints) - 1):
-            draw_triangle(origin, endpoints[i], endpoints[i + 1])
 
 
     def raycast(self, x0, y0, x1, y1, stop_on_intersection=True):
         self._raytrace(x0, y0, x1, y1, self.visit, stop_on_intersection)
+    
+    def fill_visibility_cone(self, origin):
+        for i in range(len(self.coordinate_list)):
+            if i >= 1:
+                pass
+            if i == len(self.coordinate_list) - 1:
+                self.iterate_triangle(origin, self.coordinate_list[i], self.coordinate_list[0], self.visit2)
+            else:
+                self.iterate_triangle(origin, self.coordinate_list[i], self.coordinate_list[i+1], self.visit2)
+            
