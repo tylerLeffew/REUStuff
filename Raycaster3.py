@@ -70,7 +70,7 @@ class Raycaster:
             self.hit_target = True
         if array[x][y] == 1 and x != self.current_target[0] and y != self.current_target[1]: 
             raise self.Stop("Collision")
-        if x < 0 or x >= array.shape[0] or y < 0 or y >= array.shape[1]: 
+        if x <= 0 or x >= array.shape[0] or y <= 0 or y >= array.shape[1]: 
             raise self.Stop("Out of bounds")
         array[x][y] = 1
         ray_only_array[x][y] = 1                                                                                                                                                                                                                                                                              
@@ -97,35 +97,40 @@ class Raycaster:
         current_coordinate = ()
         try:
             for i in range(n):
-                current_coordinate = (x, y)
                 visit(x, y, working_temporary_array, single_ray)  # visit may raise a Stop
                 if error > 0:
                     x += x_inc
                     error -= dy
                 else:
                     y += y_inc
-                    error += dx
+                    error += dx  
+                current_coordinate = (x, y)
         except self.Stop as e:
-            pass
+            print("Stop stop",e, x, y, current_coordinate)
         except IndexError as e:
-            pass
+            print("IndexError stop",e, x, y, current_coordinate)
         finally:
             if self.hit_target:
                 adjusted_coordinate = (current_coordinate[1],self.master_array.shape[0] - current_coordinate[0])
                 offset_coordinate = (adjusted_coordinate[0] - x0, adjusted_coordinate[1] - y0)
-                angle = math.atan2(offset_coordinate[1], offset_coordinate[0])
-                if angle < 0: angle += 2 * math.pi
+                angle_final = math.atan2(offset_coordinate[1], offset_coordinate[0])
+                adjusted_coordinate = (self.current_target[1],self.master_array.shape[0] - self.current_target[0])
+                offset_coordinate = (adjusted_coordinate[0] - x0, adjusted_coordinate[1] - y0)
+                angle_target = math.atan2(offset_coordinate[1], offset_coordinate[0])
+                if angle_final < 0: angle_final += 2 * math.pi
+                if angle_target < 0: angle_target += 2 * math.pi
                 if key in self.ray_dict:
-                    print("here")
-                    self.add_to_sorted_list(ray_list,[single_ray, current_coordinate, angle])
+                    print("--------------here----------------")
+                    print(angle_final, angle_target, current_coordinate, self.current_target)
+                    self.add_to_sorted_list(ray_list,[single_ray, self.current_target, angle_target])
+                    self.add_to_sorted_list(ray_list,[single_ray, current_coordinate, angle_final])
                     self.ray_dict[key] = ray_list
                     list_out = self.ordered_coordinate_list(key)
-                    print(list_out)
-                    for item in ray_list:
-                        print(item[2])
+                    for i,item in enumerate(ray_list):
+                        print(i, item[2])
                 else:
                     print("there")
-                    self.ray_dict[key] = [[single_ray, current_coordinate, angle]]
+                    self.ray_dict[key] = [[single_ray, current_coordinate, angle_final],[single_ray, self.current_target, angle_target]]
                 self.working_array += single_ray
 
             else:
