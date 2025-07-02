@@ -4,10 +4,9 @@ import Raycaster3 as rc
 import Array_Toolkit as atk
 import math, time
 import cv2
-from Dynamic_Visualization import thresh_and_show
 
 
-def unpack_contours(image, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE):
+def unpack_contours(image, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE):
     """
     Runs cv2.findContours() on the given binary image and unpacks all contours
     into a flat list of (x, y) integer coordinate tuples.
@@ -23,7 +22,6 @@ def unpack_contours(image, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE):
     image = np.copy(image).astype(np.uint8)
     contours, _ = cv2.findContours(image, mode, method)
     coords = []
-    print(contours)
 
     for contour in contours:
         for point in contour:
@@ -141,24 +139,14 @@ def draw_circles_with_lines(array, coordinates, circle_radius=2, line_color=(0, 
 
 if __name__ == "__main__":
     array = np.zeros((1000, 1000))
-    image = cv2.imread("Images/object_envs/9roomgrid.png",0)
-    image = image/255
-    image = 1 - image
-    array = image
-    # array = array.astype(np.uint8)
     # array[(array.shape[0]//2)-10:(array.shape[0]//2)+20, (array.shape[1]//2)-10:(array.shape[1]//2)+5] = 1
     ray = rc.Raycaster(array)
-    ray2 = rc.Raycaster(array)
-    ray3 = rc.Raycaster(array)
     # array[600:750, 600:700] = 1
     # array[650:680, 570:600] = 1
-    # array[220:450, 590:800] = 1
+    # # array[220:450, 590:800] = 1
     # array[50:150, 600:690] = 1
     # array[700:800, 10:110] = 1
-    # array[10:40, 10:40] = 1
-    # Initialize empty occupancy grid
-    # array = np.zeros((1000, 1000))
-
+    array[10:40, 10:40] = 1
     # x, y = 300, 500
     # theta = math.pi          # Facing right (0 radians)
     # sa = math.pi  *2  # 180° field of view
@@ -172,11 +160,8 @@ if __name__ == "__main__":
     #     ray.raycast(x, y, target[0], target[1], stop_on_intersection=True)
 
     coords = unpack_contours(array)
-    print(coords)
     for coord in coords:
-        ray.raycast(array.shape[0]//2, array.shape[1]//2, coord[1], coord[0], stop_on_intersection=False)
-        ray2.raycast((array.shape[0]//4)-75, (array.shape[1]//4) - 100, coord[1], coord[0], stop_on_intersection=False)
-        ray3.raycast(array.shape[0]-275, (array.shape[1]) - 300, coord[1], coord[0], stop_on_intersection=False)
+        ray.raycast(300, 500, coord[1], coord[0], stop_on_intersection=False)
         # printer = array + ray.working_array
         # atk.write_array_to_image(array=printer, filepath="raytrace3.png")
         # time.sleep(2)
@@ -186,10 +171,8 @@ if __name__ == "__main__":
     # ray.iterate_triangle((300,500), (ray.coordinate_list[3]), (ray.coordinate_list[4]), ray.visit2)
     # ray.iterate_triangle((300,500), (ray.coordinate_list[4]), (ray.coordinate_list[5]), ray.visit2)
     # print(ray.coordinate_list[0], ray.coordinate_list[1], ray.coordinate_list[2])
-    printer = array + ray.working_array + ray2.working_array + ray3.working_array
-    printer = 1 - printer
-    # color = draw_circles_with_lines(printer, ray.coordinate_list, circle_radius=10)
-    # cv2.imwrite("raytrace5.png", color)
-    atk.write_array_to_image(array=printer, filepath="raytrace5.png")
-    print(array.shape)
+    printer = array + ray.working_array
+    color = draw_circles_with_lines(printer, ray.coordinate_list, circle_radius=10)
+    cv2.imwrite("raytrace6.png", color)
+    # atk.write_array_to_image(array=printer, filepath="raytrace4.png")
     print("fin")
