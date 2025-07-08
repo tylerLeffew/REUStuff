@@ -46,12 +46,10 @@ def thresh_and_show(filepath):
         ret, thresh = cv2.threshold(image,threshold,1,cv2.THRESH_BINARY)
         im.set_data(thresh)
         fig.canvas.draw_idle()
-        print(threshold)
 
     threshold_slider.on_changed(update)
-    print("check 1")
     plt.show()
-    print("check 2")
+    print("----Threshold: ", round(threshold,3))
     return threshold, thresh
 
 def show_interactive_environment(input_array, resolution=0.1):

@@ -1,9 +1,11 @@
 from Image_Modifier import ImageModifier
 import numpy as np
-import Raycaster3 as rc
+import Raycaster4 as rc
 import Array_Toolkit as atk
+import Visibility_Polygon2 as vp
 import math, time
 import cv2
+import Dynamic_Visualization as dv
 
 
 def unpack_contours(image, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE):
@@ -93,7 +95,7 @@ def draw_circles_with_gradient(array, coordinates, circle_radius=2):
 
     return color_image
 
-def draw_circles_with_lines(array, coordinates, circle_radius=2, line_color=(0, 0, 255)):
+def draw_circles_with_lines(array, coordinates, circle_radius=2, line_color=(0, 0, 255), circles = True):
     """
     Draws a sequence of circles with gradient color, labels, and connecting lines.
 
@@ -117,18 +119,19 @@ def draw_circles_with_lines(array, coordinates, circle_radius=2, line_color=(0, 
         b = 255 - r
         circle_color = (b, 0, r)
 
-        # Draw filled circle
-        cv2.circle(color_image, (y, x), radius=circle_radius, color=circle_color, thickness=-1)
+        if circles:
+            # Draw filled circle
+            cv2.circle(color_image, (y, x), radius=circle_radius, color=circle_color, thickness=-1)
 
-        # Draw index label
-        cv2.putText(
-            color_image, str(idx), (y + 3, x - 3),
-            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            fontScale=0.3,
-            color=(255, 255, 255),
-            thickness=1,
-            lineType=cv2.LINE_AA
-        )
+            # Draw index label
+            cv2.putText(
+                color_image, str(idx), (y + 3, x - 3),
+                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontScale=0.3,
+                color=(255, 255, 255),
+                thickness=1,
+                lineType=cv2.LINE_AA
+            )
 
         # Draw line from previous point
         if idx > 0:
@@ -137,42 +140,58 @@ def draw_circles_with_lines(array, coordinates, circle_radius=2, line_color=(0, 
 
     return color_image
 
+def test1():
+
+    image = cv2.imread("Images/object_envs/9roomgrid.png",0)
+    image = image/255
+    image = 1-image
+    array = image
+    obs = (array.shape[0]//2, array.shape[1]//2)
+    print(array.dtype)
+    polygon = vp.get_visibility_polygon(grid=array, observer_rc=obs)
+    polygon = atk.cartesian_to_grid_coords(polygon, array.shape)
+
+    polygon2 = vp.get_visibility_polygon(grid=array, observer_rc=(1160,1200))
+    polygon2 = atk.cartesian_to_grid_coords(polygon2, array.shape)
+
+    polygon3 = vp.get_visibility_polygon(grid=array, observer_rc=(400,350))
+    polygon3 = atk.cartesian_to_grid_coords(polygon3, array.shape)
+
+    color = draw_circles_with_lines(array, polygon, circle_radius=10,line_color=(0,255,0),circles=False)
+    color += draw_circles_with_lines(array, polygon2, circle_radius=10,circles=False)
+    color += draw_circles_with_lines(array, polygon3, circle_radius=10,line_color=(255,0,0),circles=False)
+    cv2.circle(color, (obs[1],obs[0]), radius=20, color=(0, 255, 0), thickness=-1)
+    cv2.circle(color, (1200,1160), radius=20, color=(0, 0, 255), thickness=-1)
+    cv2.circle(color, (350,400), radius=20, color=(255, 0, 0), thickness=-1)
+    cv2.imwrite("raytrace10.png", color)
+    print("fin")
+
 if __name__ == "__main__":
-    array = np.zeros((1000, 1000))
-    # array[(array.shape[0]//2)-10:(array.shape[0]//2)+20, (array.shape[1]//2)-10:(array.shape[1]//2)+5] = 1
-    ray = rc.Raycaster(array)
-    # array[600:750, 600:700] = 1
-    # array[650:680, 570:600] = 1
-    # # array[220:450, 590:800] = 1
-    # array[50:150, 600:690] = 1
-    # array[700:800, 10:110] = 1
-    array[10:40, 10:40] = 1
-    # x, y = 300, 500
-    # theta = math.pi          # Facing right (0 radians)
-    # sa = math.pi  *2  # 180° field of view
-    # resolution = 1000 # 9 evenly spaced rays
-
-    # targets = ray.get_ray_endpoints(x, y, theta, sa, resolution)
-
-    # print(targets)
-
-    # for target in targets:
-    #     ray.raycast(x, y, target[0], target[1], stop_on_intersection=True)
-
-    coords = unpack_contours(array)
-    for coord in coords:
-        ray.raycast(300, 500, coord[1], coord[0], stop_on_intersection=False)
-        # printer = array + ray.working_array
-        # atk.write_array_to_image(array=printer, filepath="raytrace3.png")
-        # time.sleep(2)
-
-    # ray.iterate_triangle((300,500), (ray.coordinate_list[0]), (ray.coordinate_list[2]), ray.visit2)
-    # ray.iterate_triangle((300,500), (ray.coordinate_list[2]), (ray.coordinate_list[5]), ray.visit2)
-    # ray.iterate_triangle((300,500), (ray.coordinate_list[3]), (ray.coordinate_list[4]), ray.visit2)
-    # ray.iterate_triangle((300,500), (ray.coordinate_list[4]), (ray.coordinate_list[5]), ray.visit2)
-    # print(ray.coordinate_list[0], ray.coordinate_list[1], ray.coordinate_list[2])
-    printer = array + ray.working_array
-    color = draw_circles_with_lines(printer, ray.coordinate_list, circle_radius=10)
-    cv2.imwrite("raytrace6.png", color)
-    # atk.write_array_to_image(array=printer, filepath="raytrace4.png")
+    # threshold, image = dv.thresh_and_show("Images/object_envs/rsz_custom_env.png")
+    image = cv2.imread("Images/object_envs/rsz_custom_env.png",0)
+    image = image/255
+    image = 1-image
+    ret,image= cv2.threshold(image,0.8,1,cv2.THRESH_BINARY)
+    obs = (image.shape[0]//2, image.shape[1]//2)
+    color = image
+    polygon = vp.get_visibility_polygon(grid=image, observer_rc=obs)
+    polygon = atk.cartesian_to_grid_coords(polygon, image.shape)
+    print("polygon 1 created")
+    polygon2 = vp.get_visibility_polygon(grid=image, observer_rc=(290,350))
+    polygon2 = atk.cartesian_to_grid_coords(polygon2, image.shape)
+    print("polygon 2 created")
+    polygon3 = vp.get_visibility_polygon(grid=image, observer_rc=(66,70))
+    polygon3 = atk.cartesian_to_grid_coords(polygon3, image.shape)
+    print("polygon 3 created")
+    color = draw_circles_with_lines(image, polygon, circle_radius=10,line_color=(0,255,0),circles=False)
+    color += draw_circles_with_lines(image, polygon2, circle_radius=10,line_color=(0,0,255),circles=False)
+    color += draw_circles_with_lines(image, polygon3, circle_radius=10,line_color=(255,0,0),circles=False)
+    # image = (image * 255).astype(np.uint8)
+    # color = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    cv2.circle(color, (obs[1],obs[0]), radius=5, color=(0, 255, 0), thickness=-1)
+    cv2.circle(color, (350,290), radius=5, color=(0, 0, 255), thickness=-1)
+    cv2.circle(color, (70,66), radius=5, color=(255, 0, 0), thickness=-1)
+    print(color.dtype, color.shape)
+    print("eh")
+    cv2.imwrite("raytrace11.png", color)
     print("fin")

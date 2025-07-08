@@ -6,7 +6,7 @@ class Raycaster:
 
     class Ray:
         TERMINUS_AT_TARGET = 0
-        TERMINUS_AT_EDGE = 1
+        TERMINUS_AT_BOUND = 1
         PASS_THRU_TARGET = 2
         TERMINUS_WITHIN_BOUNDS = 3
         def __init__(self, array, origin, terminus, type):
@@ -17,9 +17,12 @@ class Raycaster:
             self.angle = self.find_angle()
 
         def find_angle(self):
-            adj_term = (self.terminus[1], self.array.shape[1] - self.terminus[1])
-            adj_origin = (self.origin[1], self.array.shape[1] - self.origin[1])
+            adj_term = (self.terminus[1], self.array.shape[1] - self.terminus[0])
+            print(adj_term)
+            adj_origin = (self.origin[1], self.array.shape[1] - self.origin[0])
+            print(adj_origin)
             offset = (adj_term[0] - adj_origin[0], adj_term[1] - adj_origin[1])
+            print(offset)
             angle = math.atan2(offset[1], offset[0])
             return angle
 
@@ -29,32 +32,41 @@ class Raycaster:
         self.ray_dict = {} # dictionary that holds individual rays (no environments) with keys representing their source coordinates
         self.coordinate_list = []
 
-    def custom_sort(self, list):
-        for i,ray in enumerate(list):
-            
+    def get_ray_coords_ordered(self,key):
+        if key in self.ray_dict:
+            list = self.ray_dict[key]
+            for ray in list:
+                self.coordinate_list.append(ray.terminus)
+        return self.coordinate_list
+    
+    def list_coords_and_angles(self,key):
+        if key in self.ray_dict:
+            list = self.ray_dict[key]
+            for i,ray in enumerate(list):
+                print(i,"COORDINATE: ",ray.terminus, "\n  ANGLE: ",ray.angle,"\n")
             
 
-    def is_within_4_connected_neighbors(self, candidate_coord, center_coord):
+    def is_within_8_connected_neighbors(self, candidate_coord, center_coord):
         """
-        Check if candidate_coord is within the 4-connected neighbors of center_coord.
-        
-        4-connected neighbors include cells directly above, below, left, or right
-        of the center cell, but not diagonal cells or the center itself.
+        Check if candidate_coord is within the 8-connected neighbors of center_coord.
+
+        8-connected neighbors include cells directly above, below, left, right,
+        and diagonally adjacent to the center cell, but not the center itself.
 
         Args:
             candidate_coord (tuple): (x, y) of the candidate cell.
             center_coord (tuple): (x, y) of the center cell.
 
         Returns:
-            bool: True if candidate_coord is within the 4-connected neighbors, False otherwise.
+            bool: True if candidate_coord is within the 8-connected neighbors, False otherwise.
         """
         x_candidate, y_candidate = candidate_coord
         x_center, y_center = center_coord
 
-        return (
-            (x_candidate == x_center and abs(y_candidate - y_center) == 1) or
-            (y_candidate == y_center and abs(x_candidate - x_center) == 1)
-        )
+        dx = abs(x_candidate - x_center)
+        dy = abs(y_candidate - y_center)
+
+        return (dx <= 1 and dy <= 1) and not (dx == 0 and dy == 0)
     def visit2(self,x, y):
         try:
             self.working_array[x][y] = 1
@@ -142,28 +154,38 @@ class Raycaster:
                     y += y_inc
                     error += dx  
         except self.Stop as e:
-            print("Stop stop",e, x, y, self.current_coordinate)
+            self.current_coordinate = (x, y)
+            print("Custom Stop:",e, "--error coordinate:", x, y," current coordinate:", self.current_coordinate)
         except IndexError as e:
-            print("IndexError stop",e, x, y, self.current_coordinate)
+            print("IndexError Stop:",e, "--error coordinate:", x, y," current coordinate:", self.current_coordinate)
         finally:
             if self.hit_target:
-                if self.is_within_4_connected_neighbors(self.current_coordinate, self.current_target):
-                    print('----Appending Ray type: TERMINUS_AT_TARGET----\n')
+                print('----Hit Target at:(', self.current_target[0],self.current_target[1], ") Terminus at:", self.current_coordinate)
+                print('----Shape to check: ', self.master_array.shape)
+                if self.is_within_8_connected_neighbors(self.current_coordinate, self.current_target):
+                    print('----Appending Ray type: TERMINUS_AT_TARGET')
                     ray_list.append(self.Ray(single_ray, key, self.current_target, self.Ray.TERMINUS_AT_TARGET))
-                elif ((0,self.master_array.shape[0]-1) in self.current_coordinate[0]) or ((0,self.master_array.shape[1]-1) in self.current_coordinate[1]):
-                    print('----Appending Ray type: PASS_THRU_TARGET and TERMINUS_AT_EDGE----\n')
+                    print("----Appended TERMINUS_AT_TARGET Ray using data:", self.current_target)
+                elif (self.current_coordinate[0] == 0 or self.current_coordinate[0] == self.master_array.shape[0]-1) or \
+                (self.current_coordinate[1] == 0 or self.current_coordinate[1] == self.master_array.shape[1]-1):
+                    print('----Appending Ray type: PASS_THRU_TARGET and TERMINUS_AT_BOUND')
                     ray_list.append(self.Ray(single_ray, key, self.current_target, self.Ray.PASS_THRU_TARGET))
-                    ray_list.append(self.Ray(single_ray, key, self.current_coordinate, self.Ray.TERMINUS_AT_EDGE))
+                    print("----Appended PASS_THRU_TARGET Ray using data:", self.current_target)
+                    ray_list.append(self.Ray(single_ray, key, self.current_coordinate, self.Ray.TERMINUS_AT_BOUND))
+                    print("----Appended TERMINUS_AT_BOUND Ray using data:", self.current_coordinate)
                 else:
-                    print('----Appending Ray type: PASS_THRU_TARGET and TERMINUS_WITHIN_BOUNDS----\n')
+                    print('----Appending Ray type: PASS_THRU_TARGET and TERMINUS_WITHIN_BOUNDS')
                     ray_list.append(self.Ray(single_ray, key, self.current_target, self.Ray.PASS_THRU_TARGET))
+                    print("----Appended PASS_THRU_TARGET Ray using data:", self.current_target)
                     ray_list.append(self.Ray(single_ray, key, self.current_coordinate, self.Ray.TERMINUS_WITHIN_BOUNDS))
-                print("--------------here----------------")
+                    print("----Appended TERMINUS_WITHIN_BOUNDS Ray using data:", self.current_coordinate)
+                ray_list.sort(key=lambda ray: ray.angle)
                 self.working_array += single_ray
                 self.ray_dict[key] = ray_list
+                print("\n")
 
             else:
-                print("No path found to target")
+                print("----No path found to target----\n")
 
 
 
