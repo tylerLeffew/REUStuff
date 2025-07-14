@@ -10,6 +10,7 @@ clip = {git = "git+https://github.com/jokane/clip"}
 triangle = "*"
 matplotlib = "*"
 opencv-python = "*"
+shapely = "*"
 
 [dev-packages]
 
